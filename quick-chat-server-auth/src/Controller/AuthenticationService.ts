@@ -1,17 +1,38 @@
 import bcrypt from "bcrypt";
 import { User } from "../Datastore/UserModel/UserModel";
-import { addUser } from "../Datastore/datastore";
-export const verifyUserLogin  = (username : string , password : string) =>{
-    if(username && password){
+import { addUser, checkUser, fetchUser } from "../Datastore/datastore";
 
+export const verifyUserLogin  = async (username : string , password : string) : Promise<any>=>{
+    if(username && password){
+        const user = await fetchUser(username , password);
+        if(user && user.password){
+            let passwordEncoded = user.password;
+            let checkMatch : boolean = await bcrypt.compare(password , passwordEncoded);
+            if(checkMatch){
+                return user;
+            }else{
+                return null;
+            }
+        }else{
+            return null;
+        }
     }
+
+    return null;
 }
 
-export const addUserDetails = async (userObject : User) =>{
+export const addUserDetails = async (userObject : User): Promise<boolean> =>{
     if(userObject && userObject.email && userObject.password && userObject.username){
-        let password = await bcrypt.hash(userObject.password , 10)
-        userObject.password = password;
-        const response = await  addUser(userObject);
-        console.log(response);
+        const response: boolean = await checkUser(userObject);
+        if(!response){
+            return false;
+        }else{
+            let password = await bcrypt.hash(userObject.password , 10)
+            userObject.password = password;
+            const response = await  addUser(userObject);
+            return true;
+        }
+        
     }
+    return false;
 }
