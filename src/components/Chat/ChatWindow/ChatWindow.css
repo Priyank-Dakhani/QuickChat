@@ -2,3 +2,8 @@
     height: 500px;
     overflow-y: scroll;
 }
+
+li{
+    cursor: pointer;
+    margin-top: 1%;
+}

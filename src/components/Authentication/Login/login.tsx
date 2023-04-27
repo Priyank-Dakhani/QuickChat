@@ -1,14 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import {useReducer} from "react";
 import axios from "axios";
+import { setCurrentUser } from "../../Redux/UserRedux";
+import { store } from "../../Redux/store";
+import { useDispatch } from "react-redux";
 interface User{
 	username : string;
 	password: string;
+	email: string;
 }
 export const Login = () => {
 	const navigate = useNavigate();
-	
-	const reducer = (state = {username : "" , password : ""}, action : any ): User =>{
+	const dispatching = useDispatch();
+	const reducer = (state = {username : "" , password : "" , email: ""}, action : any ): User =>{
 		
 		switch(action.type){
 			case "username":
@@ -22,19 +26,27 @@ export const Login = () => {
 		}
 	}
 
-	const [state , dispatch] = useReducer(reducer, {username : "" , password : ""});
+	const [state , dispatch] = useReducer(reducer, {username : "" , password : "", email : ""});
 	
 
 	const handleLoginClick = async (event: any) =>{
 		event.preventDefault();
 		if(state.username && state.password){
-			const response = await axios.post("http://localhost:3000/auth/login" , state ,  {
+			try{
+				const response = await axios.post("http://localhost:3000/auth/login" , state ,  {
 				headers:{
-					Accept: "application/json"
+					Accept: "application/json",
+					"Content-Type":"application/json"
 				}
-			});
-
-			console.log(response);
+				});
+				if(response && response.data ){
+					let responseData  = response.data;
+					dispatching(setCurrentUser(responseData));
+					navigate("/chat");
+				}
+			}catch(err){
+				console.log(err);
+			}
 		}
 		
 	}

@@ -9,14 +9,14 @@ const initialState: SocketObject = {
 };
 
 export const socketSlice = createSlice({
-  name: "SocketReducers",
-  initialState,
-  reducers: {
-    setConnection: (state, action: any) => {
-      console.log(action);
-      if (action && action.payload) {
-        state.io = action.payload;
-      }
+    name: 'socket',
+    initialState,
+    reducers: {
+         setConnection: (state ,  action : {payload: Socket}) =>{
+            if(action && action.payload ){
+                state.io = action.payload;
+            }
+         }
     },
   },
 });
